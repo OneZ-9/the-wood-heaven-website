@@ -1,5 +1,7 @@
-import Logo from "./components/Logo";
-import Navigation from "./components/navigation";
+import Logo from "@/app/_components/Logo";
+import Navigation from "@/app/_components/navigation";
+
+import "@/app/_styles/globals.css";
 
 export const metadata = {
   title: "The Wood Heaven",
@@ -9,7 +11,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
+      <body className="bg-primary-950 text-primary-100 min-h-screen">
         <header>
           <Logo />
           <Navigation />
