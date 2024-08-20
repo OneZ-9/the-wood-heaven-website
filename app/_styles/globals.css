@@ -30,9 +30,15 @@
   }
 }
 
-/* For data picker */
-.rdp {
-  --rdp-cell-size: 32px !important;
+/* For date picker */
+.rdp-root {
+  /* --rdp-cell-size: 32px !important; */
+  --rdp-day-height: 32px !important;
+  --rdp-day-width: 32px !important;
+  --rdp-day-font: inherit !important;
+  --rdp-month_caption-font: inherit !important;
+  --rdp-range_middle-background-color: theme("colors.primary.400") !important;
+
   --rdp-accent-color: theme("colors.accent.500") !important;
   --rdp-background-color: theme("colors.accent.600") !important;
   margin: 0 !important;

@@ -7,6 +7,7 @@ const josefin = Josefin_Sans({
   display: "swap",
 });
 
+import "react-day-picker/style.css";
 import "@/app/_styles/globals.css";
 
 export const metadata = {
