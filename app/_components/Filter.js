@@ -12,8 +12,8 @@ function Filter() {
   function handleFilter(filter) {
     // console.log(filter);
     const params = new URLSearchParams(searchParams);
-    params.set("capacity", filter); // only set the URL with searchParam
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    params.set("capacity", filter); // only set the URL with searchParam, doesn't navigate to it
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false }); // navigate to URL
   }
 
   return (
