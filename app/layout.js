@@ -1,14 +1,14 @@
+import { ReservationProvider } from "@/app/_contexts/ReservationContext";
 import Header from "@/app/_components/Header";
 
 import { Josefin_Sans } from "next/font/google";
-
 const josefin = Josefin_Sans({
   subsets: ["latin"],
   display: "swap",
 });
 
-import "react-day-picker/style.css";
 import "@/app/_styles/globals.css";
+import "react-day-picker/style.css";
 
 export const metadata = {
   // title: "The Wood Heaven",
@@ -29,7 +29,9 @@ export default function RootLayout({ children }) {
         <Header />
 
         <div className="flex-1 px-8 py-12 grid">
-          <main className="max-w-7xl mx-auto w-full">{children}</main>
+          <main className="max-w-7xl mx-auto w-full">
+            <ReservationProvider>{children}</ReservationProvider>
+          </main>
         </div>
       </body>
     </html>
