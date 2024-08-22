@@ -13,6 +13,9 @@ const authConfig = {
       return !!auth?.user; // converted to boolean
     },
   },
+  pages: {
+    signIn: "/login",
+  },
 };
 
 export const {
