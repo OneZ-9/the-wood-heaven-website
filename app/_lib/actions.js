@@ -1,8 +1,16 @@
 "use server";
 
 import { auth, signIn, signOut } from "@/app/_lib/auth";
-import { deleteBooking, getBookings, updateGuest } from "./data-service";
+import {
+  deleteBooking,
+  getBookings,
+  updateBooking,
+  updateGuest,
+} from "./data-service";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+
+// ++++++++++++++++ GUEST-PROFILE ++++++++++++++++++++++++++++
 
 export async function updateGuestProfile(formData) {
   const session = await auth();
@@ -29,6 +37,38 @@ export async function updateGuestProfile(formData) {
   revalidatePath("/account/profile");
 }
 
+// ++++++++++++++++ RESERVATIONS ++++++++++++++++++++++++++++
+
+export async function updateReservation(formData) {
+  const bookingId = Number(formData.get("bookingId"));
+
+  // 1) Authentication
+  const session = await auth();
+  if (!session) throw new Error("You must be logged in to perform this action");
+
+  // 2) Authorization
+  // Check if the user going to delete own reservation or not
+  const bookingsByGuest = await getBookings(session.user.guestId);
+  const guestBookingIds = bookingsByGuest.map((booking) => booking.id);
+
+  if (!guestBookingIds.includes(bookingId))
+    throw new Error("You're not allowed to update this booking");
+
+  // 3) Prepare data to be updated
+  const updateData = {
+    numGuests: Number(formData.get("numGuests")),
+    observations: formData.get("observations").slice(0, 1000),
+  };
+
+  //4) Mutation
+  const updatedReservation = await updateBooking(bookingId, updateData);
+
+  // 6) Revalidation and redirecting
+  revalidatePath("/account/reservations");
+  revalidatePath(`/account/reservations/edit/${bookingId}`);
+  redirect("/account/reservations");
+}
+
 export async function deleteReservation(bookingId) {
   const session = await auth();
   if (!session) throw new Error("You must be logged in to perform this action");
@@ -44,6 +84,8 @@ export async function deleteReservation(bookingId) {
 
   revalidatePath("/account/reservations");
 }
+
+// ++++++++++++++++ AUTHENTICATION ++++++++++++++++++++++++++++
 
 export async function signInAction() {
   await signIn("google", { redirectTo: "/account" });
