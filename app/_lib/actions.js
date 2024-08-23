@@ -1,12 +1,11 @@
 "use server";
 
 import { auth, signIn, signOut } from "@/app/_lib/auth";
-import { updateGuest } from "./data-service";
+import { deleteBooking, getBookings, updateGuest } from "./data-service";
 import { revalidatePath } from "next/cache";
 
 export async function updateGuestProfile(formData) {
   const session = await auth();
-
   if (!session) throw new Error("You must be logged in to perform this action");
 
   const nationalID = formData.get("nationalID");
@@ -28,6 +27,22 @@ export async function updateGuestProfile(formData) {
   const updatedProfile = await updateGuest(guestId, updateData);
 
   revalidatePath("/account/profile");
+}
+
+export async function deleteReservation(bookingId) {
+  const session = await auth();
+  if (!session) throw new Error("You must be logged in to perform this action");
+
+  // Check if the user going to delete own reservation or not
+  const bookingsByGuest = await getBookings(session.user.guestId);
+  const guestBookingIds = bookingsByGuest.map((booking) => booking.id);
+
+  if (!guestBookingIds.includes(bookingId))
+    throw new Error("You're not allowed to delete this booking");
+
+  const deletedReservation = await deleteBooking(bookingId);
+
+  revalidatePath("/account/reservations");
 }
 
 export async function signInAction() {
