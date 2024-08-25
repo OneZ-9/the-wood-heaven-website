@@ -51,7 +51,7 @@ function UpdateProfileForm({ guest, children }) {
         <label htmlFor="nationalID">National ID number</label>
         <input
           name="nationalID"
-          defaultValue={nationalID}
+          defaultValue={nationalID || ""}
           className="px-5 py-3 bg-primary-200 text-primary-800 w-full shadow-sm rounded-sm"
         />
       </div>
