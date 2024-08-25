@@ -2,6 +2,7 @@
 
 import { auth, signIn, signOut } from "@/app/_lib/auth";
 import {
+  createBooking,
   deleteBooking,
   getBookings,
   updateBooking,
@@ -38,6 +39,32 @@ export async function updateGuestProfile(formData) {
 }
 
 // ++++++++++++++++ RESERVATIONS ++++++++++++++++++++++++++++
+export async function createReservation(newBookingData, formData) {
+  const session = await auth();
+  if (!session) throw new Error("You must be logged in to perform this action");
+
+  // if we have number of data from the formData, instead using formData.get() we can use,
+  // creates an object with all the data which is in  formData
+  // Object.entries(formData.entries());
+
+  const newBooking = {
+    ...newBookingData,
+    guestId: session?.user?.guestId,
+    numGuests: Number(formData.get("numGuests")),
+    observations: formData.get("observations").slice(0, 1000),
+    extrasPrice: 0,
+    totalPrice: newBookingData.cabinPrice,
+    isPaid: false,
+    hasBreakfast: false,
+    status: "unconfirmed",
+  };
+
+  const createdBooking = await createBooking(newBooking);
+
+  revalidatePath(`/cabins/${newBookingData.cabinId}`);
+  revalidatePath("/account/reservations");
+  redirect("/cabins/thankyou");
+}
 
 export async function updateReservation(formData) {
   const bookingId = Number(formData.get("bookingId"));

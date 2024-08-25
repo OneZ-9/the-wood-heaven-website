@@ -1,6 +1,12 @@
 "use client";
 
-import { isWithinInterval } from "date-fns";
+import {
+  differenceInDays,
+  isPast,
+  isSameDay,
+  isWithinInterval,
+} from "date-fns";
+
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { useReservation } from "@/app/_contexts/ReservationContext";
@@ -17,13 +23,13 @@ function isAlreadyBooked(range, datesArr) {
 
 function DateSelector({ cabin, settings, bookedDates }) {
   const { range, setRange, resetRange } = useReservation();
+  const { regularPrice, discount } = cabin;
+  // check selectedRange with alreadyBookedDates, if selectedRange matched with alreadyBookedDates then it will return empty
+  const displayRange = isAlreadyBooked(range, bookedDates) ? {} : range;
 
-  // CHANGE
-  const regularPrice = 23;
-  const discount = 23;
-  const numNights = 23;
-  const cabinPrice = 23;
-  // const range = { from: null, to: null };
+  // Derived states
+  const numNights = differenceInDays(displayRange?.to, displayRange?.from);
+  const cabinPrice = numNights * (regularPrice - discount);
 
   // SETTINGS
   const { minBookingLength, maxBookingLength } = settings;
@@ -33,13 +39,21 @@ function DateSelector({ cabin, settings, bookedDates }) {
       <DayPicker
         className="pt-12 place-self-center"
         mode="range"
-        onSelect={(range) => setRange(range)}
-        selected={range}
+        required
+        ISOWeek
+        selected={displayRange}
+        onSelect={setRange}
         min={minBookingLength + 1}
         max={maxBookingLength}
         startMonth={new Date()}
-        // fromDate={new Date()}
-        disabled={{ before: new Date() }}
+        disabled={(curDate) =>
+          isPast(curDate) ||
+          bookedDates.some((date) => isSameDay(date, curDate))
+        }
+        // curDate equal to selected date by date picker
+        // bookedDates returns array and chain some() operation
+        //Whenever one value of the array matched then it will be true for all other values in array
+        // This trick for disable all the dates that cabin has booked.
         toYear={new Date().getFullYear() + 5}
         // endMonth={new Date().getFullYear() + 5}
         captionLayout="dropdown"
@@ -74,7 +88,7 @@ function DateSelector({ cabin, settings, bookedDates }) {
           ) : null}
         </div>
 
-        {range.from || range.to ? (
+        {range?.from || range?.to ? (
           <button
             className="border border-primary-800 py-2 px-4 text-sm font-semibold"
             onClick={() => resetRange()}
